@@ -5,6 +5,8 @@ and database field objects.
 
 from __future__ import absolute_import, unicode_literals
 
+import warnings
+
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS, FieldError
 from django.forms.fields import Field, ChoiceField
 from django.forms.forms import BaseForm, get_declared_fields
@@ -23,6 +25,9 @@ __all__ = (
     'ModelForm', 'BaseModelForm', 'model_to_dict', 'fields_for_model',
     'save_instance', 'ModelChoiceField', 'ModelMultipleChoiceField',
 )
+
+ALL_FIELDS = '__all__'
+
 
 def construct_instance(form, instance, fields=None, exclude=None):
     """
@@ -211,7 +216,7 @@ class ModelFormMetaclass(type):
         # of ('foo',)
         for opt in ['fields', 'exclude']:
             value = getattr(opts, opt)
-            if isinstance(value, six.string_types):
+            if isinstance(value, six.string_types) and value != ALL_FIELDS:
                 msg = ("%(model)s.Meta.%(opt)s cannot be a string. "
                        "Did you mean to type: ('%(value)s',)?" % {
                            'model': new_class.__name__,
@@ -222,6 +227,20 @@ class ModelFormMetaclass(type):
 
         if opts.model:
             # If a model is defined, extract form fields from it.
+
+            if opts.fields is None and opts.exclude is None:
+                # This should be some kind of assertion error once deprecation
+                # cycle is complete.
+                warnings.warn("Creating a ModelForm without either the 'fields' attribute "
+                              "or the 'exclude' attribute is deprecated - form %s "
+                              "needs updating" % name,
+                              PendingDeprecationWarning)
+
+            if opts.fields == ALL_FIELDS:
+                # sentinel for fields_for_model to indicate "get the list of
+                # fields from the model"
+                opts.fields = None
+
             fields = fields_for_model(opts.model, opts.fields,
                                       opts.exclude, opts.widgets, formfield_callback)
             # make sure opts.fields doesn't specify an invalid field
