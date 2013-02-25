@@ -413,7 +413,8 @@ def modelform_factory(model, form=ModelForm, fields=None, exclude=None,
     Returns a ModelForm containing form fields for the given model.
 
     ``fields`` is an optional list of field names. If provided, only the named
-    fields will be included in the returned fields.
+    fields will be included in the returned fields. If omitted or '__all__',
+    all fields will be used.
 
     ``exclude`` is an optional list of field names. If provided, the named
     fields will be excluded from the returned fields, even if they are listed
