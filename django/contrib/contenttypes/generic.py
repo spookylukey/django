@@ -14,7 +14,8 @@ from django.db.models.fields.related import ForeignObject, ForeignObjectRel
 from django.db.models.related import PathInfo
 from django.db.models.sql.where import Constraint
 from django.forms import ModelForm, ALL_FIELDS
-from django.forms.models import BaseModelFormSet, modelformset_factory, save_instance
+from django.forms.models import (BaseModelFormSet, modelformset_factory, save_instance,
+    modelform_defines_fields)
 from django.contrib.admin.options import InlineModelAdmin, flatten_fieldsets
 from django.contrib.contenttypes.models import ContentType
 from django.utils import six
@@ -471,8 +472,6 @@ class GenericInlineModelAdmin(InlineModelAdmin):
             # GenericInlineModelAdmin doesn't define its own.
             exclude.extend(self.form._meta.exclude)
         exclude = exclude or None
-        if fields is None:
-            fields = ALL_FIELDS
         can_delete = self.can_delete and self.has_delete_permission(request, obj)
         defaults = {
             "ct_field": self.ct_field,
@@ -488,6 +487,10 @@ class GenericInlineModelAdmin(InlineModelAdmin):
             "exclude": exclude
         }
         defaults.update(kwargs)
+
+        if defaults['fields'] is None and not modelform_defines_fields(defaults['form']):
+            defaults['fields'] = ALL_FIELDS
+
         return generic_inlineformset_factory(self.model, **defaults)
 
 class GenericStackedInline(GenericInlineModelAdmin):
