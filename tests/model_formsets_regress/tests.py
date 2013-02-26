@@ -221,7 +221,7 @@ class FormsetTests(TestCase):
         '''
         Test the type of Formset and Form error attributes
         '''
-        Formset = modelformset_factory(User)
+        Formset = modelformset_factory(User, fields="__all__")
         data = {
             'form-TOTAL_FORMS': '2',
             'form-INITIAL_FORMS': '0',
@@ -244,14 +244,14 @@ class FormsetTests(TestCase):
 
     def test_initial_data(self):
         User.objects.create(username="bibi", serial=1)
-        Formset = modelformset_factory(User, extra=2)
+        Formset = modelformset_factory(User, fields="__all__", extra=2)
         formset = Formset(initial=[{'username': 'apollo11'}, {'username': 'apollo12'}])
         self.assertEqual(formset.forms[0].initial['username'], "bibi")
         self.assertEqual(formset.extra_forms[0].initial['username'], "apollo11")
         self.assertTrue('value="apollo12"' in formset.extra_forms[1].as_p())
 
     def test_extraneous_query_is_not_run(self):
-        Formset = modelformset_factory(Network)
+        Formset = modelformset_factory(Network, fields="__all__")
         data = {'test-TOTAL_FORMS': '1',
                 'test-INITIAL_FORMS': '0',
                 'test-MAX_NUM_FORMS': '',
