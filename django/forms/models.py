@@ -731,6 +731,21 @@ def modelformset_factory(model, form=ModelForm, formfield_callback=None,
     """
     Returns a FormSet class for the given Django model class.
     """
+    # modelform_factory will produce the same warning/error, but that will be
+    # difficult to debug for code that needs upgrading, so we produce the
+    # warning here too. This logic is reproducing logic inside
+    # modelform_factory, but it can be removed once the deprecation cycle is
+    # complete, since the validation exception will produce a helpful
+    # stacktrace.
+    meta = getattr(form, 'Meta', None)
+    if meta is None:
+        meta = type(str('Meta'), (object,), {})
+    if (getattr(meta, 'fields', fields) is None and
+        getattr(meta, 'exclude', exclude) is None):
+        warnings.warn("Calling modelformset_factory without defining 'fields' or "
+                      "'exclude' explicitly is deprecated",
+                      PendingDeprecationWarning, stacklevel=2)
+
     form = modelform_factory(model, form=form, fields=fields, exclude=exclude,
                              formfield_callback=formfield_callback,
                              widgets=widgets)

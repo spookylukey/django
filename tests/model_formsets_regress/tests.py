@@ -14,7 +14,7 @@ class InlineFormsetTests(TestCase):
     def test_formset_over_to_field(self):
         "A formset over a ForeignKey with a to_field can be saved. Regression for #10243"
         Form = modelform_factory(User, fields="__all__")
-        FormSet = inlineformset_factory(User, UserSite)
+        FormSet = inlineformset_factory(User, UserSite, fields="__all__")
 
         # Instantiate the Form and FormSet to prove
         # you can create a form with no data
@@ -90,7 +90,7 @@ class InlineFormsetTests(TestCase):
     def test_formset_over_inherited_model(self):
         "A formset over a ForeignKey with a to_field can be saved. Regression for #11120"
         Form = modelform_factory(Restaurant, fields="__all__")
-        FormSet = inlineformset_factory(Restaurant, Manager)
+        FormSet = inlineformset_factory(Restaurant, Manager, fields="__all__")
 
         # Instantiate the Form and FormSet to prove
         # you can create a form with no data
@@ -157,7 +157,7 @@ class InlineFormsetTests(TestCase):
     def test_formset_with_none_instance(self):
         "A formset with instance=None can be created. Regression for #11872"
         Form = modelform_factory(User, fields="__all__")
-        FormSet = inlineformset_factory(User, UserSite)
+        FormSet = inlineformset_factory(User, UserSite, fields="__all__")
 
         # Instantiate the Form and FormSet to prove
         # you can create a formset with an instance of None
@@ -182,7 +182,7 @@ class InlineFormsetTests(TestCase):
         efnet = Network.objects.create(name="EFNet")
         host1 = Host.objects.create(hostname="irc.he.net", network=efnet)
 
-        HostFormSet = inlineformset_factory(Network, Host)
+        HostFormSet = inlineformset_factory(Network, Host, fields="__all__")
 
         # Add a new host, modify previous host, and save-as-new
         data = {
@@ -208,7 +208,7 @@ class InlineFormsetTests(TestCase):
     def test_initial_data(self):
         user = User.objects.create(username="bibi", serial=1)
         UserSite.objects.create(user=user, data=7)
-        FormSet = inlineformset_factory(User, UserSite, extra=2)
+        FormSet = inlineformset_factory(User, UserSite, extra=2, fields="__all__")
 
         formset = FormSet(instance=user, initial=[{'data': 41}, {'data': 42}])
         self.assertEqual(formset.forms[0].initial['data'], 7)
@@ -292,7 +292,7 @@ class FormfieldCallbackTests(TestCase):
     """
 
     def test_inlineformset_factory_default(self):
-        Formset = inlineformset_factory(User, UserSite, form=UserSiteForm)
+        Formset = inlineformset_factory(User, UserSite, form=UserSiteForm, fields="__all__")
         form = Formset().forms[0]
         self.assertTrue(isinstance(form['id'].field.widget, CustomWidget))
         self.assertTrue(isinstance(form['data'].field.widget, CustomWidget))
@@ -315,7 +315,7 @@ class FormfieldCallbackTests(TestCase):
     def test_inlineformset_custom_callback(self):
         callback = Callback()
         inlineformset_factory(User, UserSite, form=UserSiteForm,
-                              formfield_callback=callback)
+                              formfield_callback=callback, fields="__all__")
         self.assertCallbackCalled(callback)
 
     def test_modelformset_custom_callback(self):

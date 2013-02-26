@@ -1475,6 +1475,8 @@ class InlineModelAdmin(BaseModelAdmin):
         # if exclude is an empty list we use None, since that's the actual
         # default
         exclude = exclude or None
+        if fields is None:
+            fields = forms.ALL_FIELDS
         can_delete = self.can_delete and self.has_delete_permission(request, obj)
         defaults = {
             "form": self.form,
