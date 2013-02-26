@@ -24,6 +24,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 __all__ = (
     'ModelForm', 'BaseModelForm', 'model_to_dict', 'fields_for_model',
     'save_instance', 'ModelChoiceField', 'ModelMultipleChoiceField',
+    'ALL_FIELDS',
 )
 
 ALL_FIELDS = '__all__'
@@ -453,6 +454,15 @@ def modelform_factory(model, form=ModelForm, fields=None, exclude=None,
         'Meta': Meta,
         'formfield_callback': formfield_callback
     }
+
+    # The ModelFormMetaclass will trigger a similar warning/error, but this will
+    # be difficult to debug for code that needs updating, so we produce the
+    # warning here too.
+    if (getattr(Meta, 'fields', None) is None and
+        getattr(Meta, 'exclude', None) is None):
+        warnings.warn("Calling modelform_factory without defining 'fields' or "
+                      "'exclude' explicitly is deprecated",
+                      PendingDeprecationWarning, stacklevel=2)
 
     # Instatiate type(form) in order to use the same metaclass as form.
     return type(form)(class_name, (form,), form_class_attrs)

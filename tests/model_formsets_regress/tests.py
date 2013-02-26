@@ -13,7 +13,7 @@ from .models import User, UserSite, Restaurant, Manager, Network, Host
 class InlineFormsetTests(TestCase):
     def test_formset_over_to_field(self):
         "A formset over a ForeignKey with a to_field can be saved. Regression for #10243"
-        Form = modelform_factory(User)
+        Form = modelform_factory(User, fields="__all__")
         FormSet = inlineformset_factory(User, UserSite)
 
         # Instantiate the Form and FormSet to prove
@@ -89,7 +89,7 @@ class InlineFormsetTests(TestCase):
 
     def test_formset_over_inherited_model(self):
         "A formset over a ForeignKey with a to_field can be saved. Regression for #11120"
-        Form = modelform_factory(Restaurant)
+        Form = modelform_factory(Restaurant, fields="__all__")
         FormSet = inlineformset_factory(Restaurant, Manager)
 
         # Instantiate the Form and FormSet to prove
@@ -156,7 +156,7 @@ class InlineFormsetTests(TestCase):
 
     def test_formset_with_none_instance(self):
         "A formset with instance=None can be created. Regression for #11872"
-        Form = modelform_factory(User)
+        Form = modelform_factory(User, fields="__all__")
         FormSet = inlineformset_factory(User, UserSite)
 
         # Instantiate the Form and FormSet to prove

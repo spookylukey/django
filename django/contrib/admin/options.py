@@ -481,6 +481,8 @@ class ModelAdmin(BaseModelAdmin):
         # if exclude is an empty list we pass None to be consistent with the
         # default on modelform_factory
         exclude = exclude or None
+        if fields is None:
+            fields = forms.ALL_FIELDS
         defaults = {
             "form": self.form,
             "fields": fields,

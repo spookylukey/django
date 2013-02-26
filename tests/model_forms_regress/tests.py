@@ -1,6 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 
 from datetime import date
+import warnings
 
 from django import forms
 from django.core.exceptions import FieldError, ValidationError
@@ -133,7 +134,8 @@ class ManyToManyCallableInitialTests(TestCase):
         book3 = Publication.objects.create(title="Third Book", date_published=date(2009,1,1))
 
         # Create a ModelForm, instantiate it, and check that the output is as expected
-        ModelForm = modelform_factory(Article, formfield_callback=formfield_for_dbfield)
+        ModelForm = modelform_factory(Article, fields="__all__",
+                                      formfield_callback=formfield_for_dbfield)
         form = ModelForm()
         self.assertHTMLEqual(form.as_ul(), """<li><label for="id_headline">Headline:</label> <input id="id_headline" type="text" name="headline" maxlength="100" /></li>
 <li><label for="id_publications">Publications:</label> <select multiple="multiple" name="publications" id="id_publications">
@@ -274,6 +276,7 @@ class FormFieldCallbackTests(TestCase):
             class Meta:
                 model = Person
                 widgets = {'name': widget}
+                fields = "__all__"
 
         Form = modelform_factory(Person, form=BaseForm)
         self.assertTrue(Form.base_fields['name'].widget is widget)
@@ -285,11 +288,11 @@ class FormFieldCallbackTests(TestCase):
         widget = forms.Textarea()
 
         # Without a widget should not set the widget to textarea
-        Form = modelform_factory(Person)
+        Form = modelform_factory(Person, fields="__all__")
         self.assertNotEqual(Form.base_fields['name'].widget.__class__, forms.Textarea)
 
         # With a widget should not set the widget to textarea
-        Form = modelform_factory(Person, widgets={'name':widget})
+        Form = modelform_factory(Person, fields="__all__", widgets={'name':widget})
         self.assertEqual(Form.base_fields['name'].widget.__class__, forms.Textarea)
 
     def test_custom_callback(self):
@@ -307,6 +310,7 @@ class FormFieldCallbackTests(TestCase):
             class Meta:
                 model = Person
                 widgets = {'name': widget}
+                fields = "__all__"
 
         _ = modelform_factory(Person, form=BaseForm,
                               formfield_callback=callback)
@@ -317,7 +321,7 @@ class FormFieldCallbackTests(TestCase):
 
     def test_bad_callback(self):
         # A bad callback provided by user still gives an error
-        self.assertRaises(TypeError, modelform_factory, Person,
+        self.assertRaises(TypeError, modelform_factory, Person, fields="__all__",
                           formfield_callback='not a function or callable')
 
 
@@ -473,7 +477,7 @@ class EmptyFieldsTestCase(TestCase):
 
     def test_empty_fields_to_construct_instance(self):
         "No fields should be set on a model instance if construct_instance receives fields=()"
-        form = modelform_factory(Person)({'name': 'John Doe'})
+        form = modelform_factory(Person, fields="__all__")({'name': 'John Doe'})
         self.assertTrue(form.is_valid())
         instance = construct_instance(form, Person(), fields=())
         self.assertEqual(instance.name, '')
@@ -485,10 +489,25 @@ class CustomMetaclass(ModelFormMetaclass):
         new.base_fields = {}
         return new
 
+
 class CustomMetaclassForm(six.with_metaclass(CustomMetaclass, forms.ModelForm)):
     pass
 
+
 class CustomMetaclassTestCase(TestCase):
     def test_modelform_factory_metaclass(self):
-        new_cls = modelform_factory(Person, form=CustomMetaclassForm)
+        new_cls = modelform_factory(Person, fields="__all__", form=CustomMetaclassForm)
         self.assertEqual(new_cls.base_fields, {})
+
+
+class TestTicket19733(TestCase):
+    def test_modelform_factory_without_fields(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always", PendingDeprecationWarning)
+            # This should become an error once deprecation cycle is complete.
+            form = modelform_factory(Person)
+        self.assertEqual(w[0].category, PendingDeprecationWarning)
+
+    def test_modelform_factory_with_all_fields(self):
+        form = modelform_factory(Person, fields="__all__")
+        self.assertEqual(form.base_fields.keys(), ["name"])

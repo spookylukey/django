@@ -294,6 +294,8 @@ method is used to determine whether a form requires multipart file upload (and
 hence whether ``request.FILES`` must be passed to the form), etc. See
 :ref:`binding-uploaded-files` for more information.
 
+.. _modelforms-selecting-fields:
+
 Selecting the fields to use
 ---------------------------
 
@@ -553,21 +555,19 @@ definition. This may be more convenient if you do not have many customizations
 to make::
 
     >>> from django.forms.models import modelform_factory
-    >>> BookForm = modelform_factory(Book)
+    >>> BookForm = modelform_factory(Book, fields=("author", "title"))
 
 This can also be used to make simple modifications to existing forms, for
-example by specifying which fields should be displayed::
-
-    >>> Form = modelform_factory(Book, form=BookForm, fields=("author",))
-
-... or which fields should be excluded::
-
-    >>> Form = modelform_factory(Book, form=BookForm, exclude=("title",))
-
-You can also specify the widgets to be used for a given field::
+example by specifying the widgets to be used for a given field::
 
     >>> from django.forms import Textarea
-    >>> Form = modelform_factory(Book, form=BookForm, widgets={"title": Textarea()})
+    >>> Form = modelform_factory(Book, form=BookForm,
+                                 widgets={"title": Textarea()})
+
+The fields to include can be specified using the ``fields`` and ``exclude``
+keyword arguments, or the corresponding attributes on the ``ModelForm`` inner
+``Meta`` class. Please see the ``ModelForm`` :ref:`modelforms-selecting-fields`
+documentation.
 
 .. _model-formsets:
 
