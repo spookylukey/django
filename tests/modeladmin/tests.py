@@ -229,9 +229,6 @@ class ModelAdminTests(TestCase):
         class AdminBandForm(forms.ModelForm):
             delete = forms.BooleanField()
 
-            class Meta:
-                model = Band
-
         class BandAdmin(ModelAdmin):
             form = AdminBandForm
 
@@ -319,8 +316,7 @@ class ModelAdminTests(TestCase):
             '</select>' % (band2.id, self.band.id))
 
         class AdminConcertForm(forms.ModelForm):
-            class Meta:
-                model = Concert
+            pass
 
             def __init__(self, *args, **kwargs):
                 super(AdminConcertForm, self).__init__(*args, **kwargs)
@@ -710,8 +706,7 @@ class ValidationTests(unittest.TestCase):
         validate(BandAdmin, Band)
 
         class AdminBandForm(forms.ModelForm):
-            class Meta:
-                model = Band
+            pass
 
         class BandAdmin(ModelAdmin):
             form = AdminBandForm
@@ -732,9 +727,6 @@ class ValidationTests(unittest.TestCase):
 
         class AdminBandForm(forms.ModelForm):
             delete = forms.BooleanField()
-
-            class Meta:
-                model = Band
 
         class BandAdmin(ModelAdmin):
             form = AdminBandForm

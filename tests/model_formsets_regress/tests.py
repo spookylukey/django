@@ -268,6 +268,7 @@ class CustomWidget(forms.widgets.TextInput):
 class UserSiteForm(forms.ModelForm):
     class Meta:
         model = UserSite
+        fields = "__all__"
         widgets = {
             'id': CustomWidget,
             'data': CustomWidget,
@@ -353,6 +354,7 @@ class FormfieldShouldDeleteFormTests(TestCase):
         """ A model form with a 'should_delete' method """
         class Meta:
             model = User
+            fields = "__all__"
 
         def should_delete(self):
             """ delete form if odd PK """
