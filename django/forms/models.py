@@ -1136,3 +1136,10 @@ class ModelMultipleChoiceField(ModelChoiceField):
         initial_set = set([force_text(value) for value in self.prepare_value(initial)])
         data_set = set([force_text(value) for value in data])
         return data_set != initial_set
+
+
+def modelform_defines_fields(form_class):
+    return (hasattr(form_class, '_meta') and
+            (form_class._meta.fields is not None or
+             form_class._meta.exclude is not None)
+            )

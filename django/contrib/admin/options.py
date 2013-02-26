@@ -5,7 +5,7 @@ from django import forms
 from django.conf import settings
 from django.forms.formsets import all_valid, DELETION_FIELD_NAME
 from django.forms.models import (modelform_factory, modelformset_factory,
-    inlineformset_factory, BaseInlineFormSet)
+    inlineformset_factory, BaseInlineFormSet, modelform_defines_fields)
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.admin import widgets, helpers
 from django.contrib.admin.util import (unquote, flatten_fieldsets, get_deleted_objects,
@@ -481,8 +481,6 @@ class ModelAdmin(BaseModelAdmin):
         # if exclude is an empty list we pass None to be consistent with the
         # default on modelform_factory
         exclude = exclude or None
-        if fields is None:
-            fields = forms.ALL_FIELDS
         defaults = {
             "form": self.form,
             "fields": fields,
@@ -490,6 +488,10 @@ class ModelAdmin(BaseModelAdmin):
             "formfield_callback": partial(self.formfield_for_dbfield, request=request),
         }
         defaults.update(kwargs)
+
+        if defaults['fields'] is None and not modelform_defines_fields(defaults['form']):
+            defaults['fields'] = forms.ALL_FIELDS
+
         return modelform_factory(self.model, **defaults)
 
     def get_changelist(self, request, **kwargs):
