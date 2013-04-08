@@ -915,14 +915,14 @@ class ModelFormsetTest(TestCase):
             'form-1-quantity': '2',
         }
 
-        FormSet = modelformset_factory(Price, extra=1, max_num=1, validate_max=True)
+        FormSet = modelformset_factory(Price, fields="__all__", extra=1, max_num=1, validate_max=True)
         formset = FormSet(data)
         self.assertFalse(formset.is_valid())
         self.assertEqual(formset.non_form_errors(), ['Please submit 1 or fewer forms.'])
 
         # Now test the same thing without the validate_max flag to ensure
         # default behavior is unchanged
-        FormSet = modelformset_factory(Price, extra=1, max_num=1)
+        FormSet = modelformset_factory(Price, fields="__all__", extra=1, max_num=1)
         formset = FormSet(data)
         self.assertTrue(formset.is_valid())
 
@@ -1102,7 +1102,7 @@ class ModelFormsetTest(TestCase):
     def test_model_formset_with_initial_model_instance(self):
         # has_changed should compare model instance and primary key
         # see #18898
-        FormSet = modelformset_factory(Poem)
+        FormSet = modelformset_factory(Poem, fields='__all__')
         john_milton = Poet(name="John Milton")
         john_milton.save()
         data = {
@@ -1118,7 +1118,7 @@ class ModelFormsetTest(TestCase):
     def test_model_formset_with_initial_queryset(self):
         # has_changed should work with queryset and list of pk's
         # see #18898
-        FormSet = modelformset_factory(AuthorMeeting)
+        FormSet = modelformset_factory(AuthorMeeting, fields='__all__')
         author = Author.objects.create(pk=1, name='Charles Baudelaire')
         data = {
             'form-TOTAL_FORMS': 1,

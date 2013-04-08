@@ -44,9 +44,12 @@ class ModelMultipleChoiceFieldTests(TestCase):
         f.clean([p.pk for p in Person.objects.all()[8:9]])
         self.assertTrue(self._validator_run)
 
+
 class TripleForm(forms.ModelForm):
     class Meta:
         model = Triple
+        fields = '__all__'
+
 
 class UniqueTogetherTests(TestCase):
     def test_multiple_field_unique_together(self):
@@ -64,14 +67,17 @@ class UniqueTogetherTests(TestCase):
         form = TripleForm({'left': '1', 'middle': '3', 'right': '1'})
         self.assertTrue(form.is_valid())
 
+
 class TripleFormWithCleanOverride(forms.ModelForm):
     class Meta:
         model = Triple
+        fields = '__all__'
 
     def clean(self):
         if not self.cleaned_data['left'] == self.cleaned_data['right']:
             raise forms.ValidationError('Left and right should be equal')
         return self.cleaned_data
+
 
 class OverrideCleanTests(TestCase):
     def test_override_clean(self):
@@ -85,6 +91,7 @@ class OverrideCleanTests(TestCase):
         # by form.full_clean().
         self.assertEqual(form.instance.left, 1)
 
+
 # Regression test for #12960.
 # Make sure the cleaned_data returned from ModelForm.clean() is applied to the
 # model instance.
@@ -96,6 +103,8 @@ class PublicationForm(forms.ModelForm):
 
     class Meta:
         model = Publication
+        fields = '__all__'
+
 
 class ModelFormCleanTest(TestCase):
     def test_model_form_clean_applies_to_model(self):
@@ -104,9 +113,12 @@ class ModelFormCleanTest(TestCase):
         publication = form.save()
         self.assertEqual(publication.title, 'TEST')
 
+
 class FPForm(forms.ModelForm):
     class Meta:
         model = FilePathModel
+        fields = '__all__'
+
 
 class FilePathFieldTests(TestCase):
     def test_file_path_field_blank(self):
@@ -145,9 +157,12 @@ class ManyToManyCallableInitialTests(TestCase):
 </select> <span class="helptext"> Hold down "Control", or "Command" on a Mac, to select more than one.</span></li>"""
             % (book1.pk, book2.pk, book3.pk))
 
+
 class CFFForm(forms.ModelForm):
     class Meta:
         model = CustomFF
+        fields = '__all__'
+
 
 class CustomFieldSaveTests(TestCase):
     def test_save(self):
@@ -170,9 +185,12 @@ class ModelChoiceIteratorTests(TestCase):
         f = Form()
         self.assertEqual(len(f.fields["publications"].choices), 1)
 
+
 class RealPersonForm(forms.ModelForm):
     class Meta:
         model = RealPerson
+        fields = '__all__'
+
 
 class CustomModelFormSaveMethod(TestCase):
     def test_string_message(self):
@@ -232,9 +250,12 @@ class TestTicket11183(TestCase):
         self.assertTrue(field1 is not ModelChoiceForm.base_fields['person'])
         self.assertTrue(field1.widget.choices.field is field1)
 
+
 class HomepageForm(forms.ModelForm):
     class Meta:
         model = Homepage
+        fields = '__all__'
+
 
 class URLFieldTests(TestCase):
     def test_url_on_modelform(self):
@@ -366,6 +387,8 @@ class InvalidFieldAndFactory(TestCase):
 class DocumentForm(forms.ModelForm):
     class Meta:
         model = Document
+        fields = '__all__'
+
 
 class FileFieldTests(unittest.TestCase):
     def test_clean_false(self):
@@ -429,6 +452,7 @@ class FileFieldTests(unittest.TestCase):
         self.assertTrue('something.txt' in rendered)
         self.assertTrue('myfile-clear' in rendered)
 
+
 class EditionForm(forms.ModelForm):
     author = forms.ModelChoiceField(queryset=Person.objects.all())
     publication = forms.ModelChoiceField(queryset=Publication.objects.all())
@@ -437,6 +461,8 @@ class EditionForm(forms.ModelForm):
 
     class Meta:
         model = Edition
+        fields = '__all__'
+
 
 class UniqueErrorsTests(TestCase):
     def setUp(self):

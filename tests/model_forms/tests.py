@@ -31,10 +31,14 @@ if test_images:
     class ImageFileForm(forms.ModelForm):
         class Meta:
             model = ImageFile
+            fields = '__all__'
+
 
     class OptionalImageFileForm(forms.ModelForm):
         class Meta:
             model = OptionalImageFile
+            fields = '__all__'
+
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -163,6 +167,7 @@ class ShortCategory(forms.ModelForm):
 
     class Meta:
         model = Category
+        fields = '__all__'
 
 
 class ImprovedArticleForm(forms.ModelForm):
